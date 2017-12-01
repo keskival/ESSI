@@ -1,0 +1,60 @@
+% Lyhyitä testiohjelmia. Essi-tulkin antamat
+% tulosteet on merkitty aloittamalla rivi kahdella
+% välilyönnillä.
+
+% Negative numbers and arithmetic
+:l add.o int.o :l io.o :l mul.o
+  Loaded add
+  Loaded int
+  Loaded io
+  Loaded mul
+-2 . 2 . -3 3 + . -2 -3 * . -2 3 * . -4 3 / .
+  -2 2 0 6 -6 -1
+
+% Modulo and negative numbers
+:l int.o :l io.o :l mul.o
+  Loaded int
+  Loaded io
+  Loaded mul
+-2 5 mod . 2 -5 mod . 2 5 mod . -2 -5 mod .
+  -2 2 2 -2
+ % I think 3 instead of -2 is also acceptable
+
+% Stack under- and overflow
+:l add.o :l int.o :l io.o :l loop.o :l mul.o
+  Loaded add
+  Loaded int
+  Loaded io
+  Loaded loop
+  Loaded mul
+4 5 . . .
+  5 4 !Stack Underflow (Stack reset)!
+1 /
+  !Stack Underflow (Stack reset)!
+2 *
+  !Stack Underflow (Stack reset)!
+4 +
+  !Stack Underflow (Stack reset)!
+5 mod
+  !Stack Underflow (Stack reset)!
+: flush_stack . flush_stack ;
+5 6 7 5 3 flush_stack
+  3 5 7 6 5 !Stack Underflow (Stack reset)!
+begin 0 1 while repeat
+  !Stack Overflow (Stack reset)!
+
+% Shift operations
+:l int.o :l io.o :l shift.o
+  Loaded int
+  Loaded io
+  Loaded shift
+2 >> . 5 << . -2 << . -2 >> . -2 >>a .
+  1 10 -4 2147483647 -1
+5 2 <n . 4 256 >n . 4 -256 >na .
+  64 16 -16
+
+% Memory and int-errors
+45 4564563567456 !
+  Numeric constant doesn't fit in 32 bits. Set to largest possible.(2147483647)
+  !Memory reference over reserved space (Stack reset)!
+

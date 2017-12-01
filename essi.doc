@@ -1,0 +1,44 @@
+176842 Tero Keski-Valkama
+
+Ohjelman rakenne:
+
+essi_lex.lex sis‰lt‰‰ lex-tyyppiset ohjeet essin perustana pyˆriv‰n parserin toteuttamiselle.
+
+essi.c toimii p‰‰ohjelmana, ja lukee oletusvirrasta syˆtteit‰ essi_lex:in tuottaman tulkin l‰pi.
+
+:l -k‰skyll‰ voidaan linkitt‰‰ essiin ajon aikana moduuli-tiedostoja, joita ovat: abs.o, add.o, comp.o, hex.o, if.o, int.o, io.o, loop.o, mem.o, mul.o, shift.o, stack.o.
+
+Kaikille moduuleille on toteutettu seuraavat funktiot:
+char* get_module_name(void)
+bool is_known_word(word w)
+bool interpret(word w, FILE* f)
+
+Kun essi-tulkki lukee sanan, joka ei kuulu sen tuntemiin tulkin ohjauskomentoihin, iteroi se l‰pi kaikki siihen ajon aikana linkitetyt moduulit ja kysyy n‰ilt‰ kuuluuko saatu sana n‰iden sanavarastoon kutsumalla is_known_word() -funktiota. Jos joku moduuli tunnustaa tuntevansa saadun sanan, annetaan se sille interpret() -funktion avulla ja moduuli lis‰‰ parametrina saamaansa tiedostokahvaan sparc-assembleria, joka toteuttaa sanan m‰‰r‰‰m‰n teht‰v‰n.
+
+Aina kun essi-tulkki kohtaa rivinvaihdon, k‰‰nt‰‰ se valmiiksi saamansa sparc-konekieliohjelman objektitiedostoksi kutsumalla as-k‰‰nt‰j‰‰. T‰m‰n j‰lkeen essi linkitt‰‰ tuloksena saadun objektitiedoston itseens‰ ja kutsuu sen essi_program_start -funktiota.
+T‰lle annetaan parametreiksi pinossa olevien alkioiden m‰‰r‰, pino-osoitin ja osoitin essi-kielisen ohjelman k‰ytˆss‰ olevan muistikappaleen alkuun.
+Jos k‰‰nnett‰v‰ ohjelma on funktion m‰‰rittely, se k‰‰nnet‰‰n, linkitet‰‰n ja k‰ytetyt tiedostot poistetaan
+kovalevylt‰, mutta sit‰ ei suoriteta essi-tulkista. N‰it‰ suoritetaan aliohjelmakutsuilla essi-kielisist‰ k‰‰nnetyist‰ ohjelmista.
+
+essi_program_start palauttaa pinossa olevien alkioiden m‰‰r‰n tai virhekoodin. (Alkuper‰inen ohjelma palautti uuden
+pino-osoittimen, mutta t‰llˆin virheentarkastelua varten olisi tarvittu toinen palautettava arvo)
+Virhekoodit:
+-1	pinon alivuoto.
+-2	pinon ylivuoto.
+-3	osoitus yli varatun muistialueen.
+
+Kaikissa virhetilanteissa pino nollataan asettamalla pino-osoitin sen alkuun ja nollaamalla sen sis‰lt‰mien alkioiden m‰‰r‰.
+
+Jokainen moduuli tarkkailee pinon yli- ja alivuototilanteita ajonsa aikana. Mem-moduuli tarkkailee t‰m‰n lis‰ksi viittauksia yli
+varatun muistin. Int-moduuli tarkkailee saamiensa lukujen bittiesityksen kokoa. Kaikki muut virheet k‰sittelee k‰yttˆj‰rjestelm‰
+lopettamalla ohjelman suorituksen.
+Jos ennen moduulin suorittamista on %g3, eli pinossa olevien alkioiden m‰‰r‰, negatiivinen, niin ennen kyseist‰ k‰sky‰ on tapahtunut virhe. T‰llˆin hyp‰t‰‰n k‰skyn yli seuraavaan, jolloin t‰m‰ tekee samoin, kunnes p‰‰st‰‰n ohjelman loppuun. Jos taas k‰skyn aikana havaitaan, ett‰ pino yli- tai alivuotaa, asetetaan virhekoodi ja hyp‰t‰‰n k‰skyn loppuun. Muussa tapauksessa suoritetaan kaikki operaatioon kuuluvat k‰skyt normaalisti.
+
+K‰yttˆj‰rjestelm‰n k‰sittelemiin virheisiin kuuluvat:
+Alignment error (kaksoissanaa k‰sittelev‰ muistiviittaus ei osu nelj‰ll‰ jaolliseen muistipaikkaan)
+Division by zero (jako tai jakoj‰‰nnˆksen laskenta nollalla)
+Muistin loppuminen (ajon aikana t‰m‰n voi aiheuttaa liian iso essi-ohjelmakoodi)
+
+Essi-tulkkiin lis‰ttiin kommenttirivien tuki. %-alkuisia rivi‰ ei tulkata, vaan ne ohitetaan t‰ysin.
+
+Esimerkkiohjelmia lˆytyy src-hakemistosta ja ne on nimetty essi-p‰‰tteisiksi.
